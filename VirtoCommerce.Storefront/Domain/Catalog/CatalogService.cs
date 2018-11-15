@@ -17,6 +17,7 @@ using VirtoCommerce.Storefront.Model.Common.Caching;
 using VirtoCommerce.Storefront.Model.Customer.Services;
 using VirtoCommerce.Storefront.Model.Inventory.Services;
 using VirtoCommerce.Storefront.Model.Pricing.Services;
+using VirtoCommerce.Storefront.Model.ProductRatings;
 using VirtoCommerce.Storefront.Model.Services;
 using VirtoCommerce.Storefront.Model.Subscriptions.Services;
 
@@ -32,14 +33,22 @@ namespace VirtoCommerce.Storefront.Domain
         private readonly IMemberService _customerService;
         private readonly ISubscriptionService _subscriptionService;
         private readonly IInventoryService _inventoryService;
+        private readonly IProductRatingService _productRatingService;
         private readonly IStorefrontMemoryCache _memoryCache;
         private readonly IApiChangesWatcher _apiChangesWatcher;
 
-        public CatalogService(IWorkContextAccessor workContextAccessor, ICatalogModuleCategories categoriesApi,
+        public CatalogService(
+            IWorkContextAccessor workContextAccessor,
+            ICatalogModuleCategories categoriesApi,
             ICatalogModuleProducts productsApi,
-            ICatalogModuleSearch searchApi, IPricingService pricingService, IMemberService customerService,
+            ICatalogModuleSearch searchApi,
+            IPricingService pricingService,
+            IMemberService customerService,
             ISubscriptionService subscriptionService,
-            IInventoryService inventoryService, IStorefrontMemoryCache memoryCache, IApiChangesWatcher changesWatcher)
+            IInventoryService inventoryService,
+            IStorefrontMemoryCache memoryCache,
+            IApiChangesWatcher changesWatcher,
+            IProductRatingService productRatingService)
         {
             _workContextAccessor = workContextAccessor;
             _categoriesApi = categoriesApi;
@@ -52,6 +61,7 @@ namespace VirtoCommerce.Storefront.Domain
             _subscriptionService = subscriptionService;
             _memoryCache = memoryCache;
             _apiChangesWatcher = changesWatcher;
+            _productRatingService = productRatingService;
         }
 
         #region ICatalogSearchService Members
@@ -106,6 +116,8 @@ namespace VirtoCommerce.Storefront.Domain
                     {
                         taskList.Add(LoadProductPaymentPlanAsync(allProducts, workContext));
                     }
+
+                    taskList.Add(LoadProductRatingsAsync(allProducts, workContext));
 
                     await Task.WhenAll(taskList.ToArray());
 
@@ -362,6 +374,31 @@ namespace VirtoCommerce.Storefront.Domain
                     }
                     return new StaticPagedList<ProductAssociation>(result, pageNumber, pageSize, searchResult.TotalCount ?? 0);
                 }, 1, ProductSearchCriteria.DefaultPageSize);
+            }
+            return Task.CompletedTask;
+        }
+
+        protected virtual Task LoadProductRatingsAsync(List<Product> products, WorkContext workContext)
+        {
+            if (products == null)
+            {
+                throw new ArgumentNullException(nameof(products));
+            }
+
+            foreach (var product in products)
+            {
+                //Lazy loading for products ratings
+                product.ProductRatings = new MutablePagedList<Model.ProductRatings.ProductRating>((pageNumber, pageSize, sortInfos) =>
+                {
+                    var criteria = new ProductRatingSearchCriteria
+                    {
+                        ProductIds = new[] { product.Id },
+                        PageNumber = pageNumber,
+                        PageSize = pageSize,
+                        Sort = SortInfo.ToString(sortInfos),
+                    };
+                    return _productRatingService.SearchRatings(criteria);
+                }, 1, ProductRatingSearchCriteria.DefaultPageSize);
             }
             return Task.CompletedTask;
         }

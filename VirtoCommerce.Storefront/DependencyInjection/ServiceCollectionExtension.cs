@@ -27,6 +27,7 @@ using VirtoCommerce.Storefront.AutoRestClients.OrdersModuleApi;
 using VirtoCommerce.Storefront.AutoRestClients.PlatformModuleApi;
 using VirtoCommerce.Storefront.AutoRestClients.PricingModuleApi;
 using VirtoCommerce.Storefront.AutoRestClients.ProductRecommendationsModuleApi;
+using VirtoCommerce.Storefront.AutoRestClients.ProductsRating.WebModuleApi;
 using VirtoCommerce.Storefront.AutoRestClients.QuoteModuleApi;
 using VirtoCommerce.Storefront.AutoRestClients.SitemapsModuleApi;
 using VirtoCommerce.Storefront.AutoRestClients.StoreModuleApi;
@@ -87,6 +88,7 @@ namespace VirtoCommerce.Storefront.DependencyInjection
             services.AddSingleton<ISitemapsModuleApiOperations>(provider => new SitemapsModuleApiOperations(new VirtoCommerceSitemapsRESTAPIdocumentation(provider.GetService<IOptions<PlatformEndpointOptions>>().Value.Url, provider.GetService<VirtoCommerceApiRequestHandler>(), httpHandlerWithCompression).DisableRetries().WithTimeout(provider.GetService<IOptions<PlatformEndpointOptions>>().Value.RequestTimeout)));
             services.AddSingleton<ICacheModule>(provider => new CacheModule(new VirtoCommerceCacheRESTAPIdocumentation(provider.GetService<IOptions<PlatformEndpointOptions>>().Value.Url, provider.GetService<VirtoCommerceApiRequestHandler>(), httpHandlerWithCompression).DisableRetries().WithTimeout(provider.GetService<IOptions<PlatformEndpointOptions>>().Value.RequestTimeout)));
             services.AddSingleton<INotifications>(provider => new Notifications(new VirtoCommercePlatformRESTAPIdocumentation(provider.GetService<IOptions<PlatformEndpointOptions>>().Value.Url, provider.GetService<VirtoCommerceApiRequestHandler>(), httpHandlerWithCompression).DisableRetries().WithTimeout(provider.GetService<IOptions<PlatformEndpointOptions>>().Value.RequestTimeout)));
+            services.AddSingleton<IProductsRating>(provider => new ProductsRating(new ProductsRatingWebRESTAPIdocumentation(provider.GetService<IOptions<PlatformEndpointOptions>>().Value.Url, provider.GetService<VirtoCommerceApiRequestHandler>(), httpHandlerWithCompression).DisableRetries().WithTimeout(provider.GetService<IOptions<PlatformEndpointOptions>>().Value.RequestTimeout)));
 
             if (setupAction != null)
             {

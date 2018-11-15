@@ -7,6 +7,9 @@ $modules = @('Cache','Cart','Catalog','Content','Core','Customer','Inventory','M
 $modules.ForEach( { autoRest -Input http://localhost/admin/docs/VirtoCommerce.$_/v1  -OutputFileName $_`ModuleApi.cs -Namespace VirtoCommerce.Storefront.AutoRestClients.$_`ModuleApi -ClientName $_`ModuleApiClient -OutputDirectory VirtoCommerce.Storefront\AutoRestClients -AddCredentials true -UseDateTimeOffset false })
 
 
+$modules = @('ProductsRating.Web')
+$modules.ForEach( { autoRest -Input http://localhost/admin/docs/$_/v1  -OutputFileName $_`ModuleApi.cs -Namespace VirtoCommerce.Storefront.AutoRestClients.$_`ModuleApi -ClientName $_`ModuleApiClient -OutputDirectory VirtoCommerce.Storefront\AutoRestClients -AddCredentials true -UseDateTimeOffset false })
+
 Troubleshooting
 
 See AutoRest guide here:

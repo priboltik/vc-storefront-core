@@ -95,6 +95,9 @@ namespace VirtoCommerce.LiquidThemeEngine.Objects
         [DataMember]
         public string Description { get; set; }
 
+        [DataMember]
+        public ProductRating[] ProductRatings { get; set; }
+
         /// <summary>
         /// Gets or sets the collection of product descriptions: FullReview, QuickReview, etc.
         /// </summary>
